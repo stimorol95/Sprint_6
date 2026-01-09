@@ -1,30 +1,46 @@
 from .base_page import BasePage
+from locators.main_page_locators import MainPageLocators
+from config import BASE_URL
+
 
 class MainPage(BasePage):
-    URL = "https://qa-scooter.praktikum-services.ru/"
-    
     def open(self):
-        self.driver.get(self.URL)
-        try:
-            self.click(("id", "rcc-confirm-button"))
-        except:
-            pass
+        self.driver.get(BASE_URL)
+        self.wait_for_element_to_be_visible(MainPageLocators.TOP_ORDER_BUTTON)
+    
+    def accept_cookies(self):
+        if self.is_element_displayed(MainPageLocators.COOKIE_BUTTON):
+            self.click_element(MainPageLocators.COOKIE_BUTTON)
     
     def click_question(self, index):
-        self.click(("id", f"accordion__heading-{index}"))
+        question_locator = MainPageLocators.question_locator(index)
+        element = self.find_element(question_locator)
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
+        self.driver.execute_script("arguments[0].click();", element)
+        answer_locator = MainPageLocators.answer_locator(index)
+        self.wait_for_element_to_be_visible(answer_locator, timeout=3)
     
     def get_answer_text(self, index):
-        return self.get_text(("id", f"accordion__panel-{index}"))
+        answer_locator = MainPageLocators.answer_locator(index)
+        self.wait_for_element_to_be_visible(answer_locator, timeout=5)
+        return self.get_element_text(answer_locator)
     
-    def click_top_order(self):
-        self.click(("xpath", "//button[text()='Заказать']"))
+    def is_answer_displayed(self, index):
+        return self.is_element_displayed(MainPageLocators.answer_locator(index), timeout=5)
     
-    def click_bottom_order(self):
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        self.click(("xpath", "(//button[text()='Заказать'])[2]"))
+    def click_top_order_button(self):
+        self.click_element(MainPageLocators.TOP_ORDER_BUTTON)
+    
+    def click_bottom_order_button(self):
+        self.scroll_to_bottom()
+        self.click_element(MainPageLocators.BOTTOM_ORDER_BUTTON)
     
     def click_scooter_logo(self):
-        self.click(("xpath", "//a[@href='/']"))
+        self.click_element(MainPageLocators.SCOOTER_LOGO)
     
     def click_yandex_logo(self):
-        self.click(("xpath", "//a[@href='//yandex.ru']"))
+        self.click_element(MainPageLocators.YANDEX_LOGO)
+    
+    def is_on_main_page(self):
+        current_url = self.get_current_url()
+        return BASE_URL in current_url
