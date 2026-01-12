@@ -3,6 +3,9 @@ from locators.order_page_locators import OrderPageLocators
 
 
 class OrderPage(BasePage):
+    def wait_for_order_form_to_load(self):
+        self.wait_for_element_to_be_visible(OrderPageLocators.NAME_INPUT)
+    
     def fill_name(self, name):
         self.send_keys_to_element(OrderPageLocators.NAME_INPUT, name)
     
@@ -64,6 +67,3 @@ class OrderPage(BasePage):
     
     def is_order_success_displayed(self):
         return self.is_element_displayed(OrderPageLocators.SUCCESS_MODAL, timeout=10)
-    
-    def wait_for_order_form_to_load(self):
-        self.wait_for_element_to_be_visible(OrderPageLocators.NAME_INPUT)

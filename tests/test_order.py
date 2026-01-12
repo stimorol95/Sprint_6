@@ -1,7 +1,9 @@
 import allure
+import time
 from pages.main_page import MainPage
 from pages.order_page import OrderPage
 from pages.yandex_page import YandexPage
+from data.test_data import ORDER_DATA_1, ORDER_DATA_2
 
 
 class TestOrderTopButtonFirstDataset:
@@ -13,8 +15,13 @@ class TestOrderTopButtonFirstDataset:
         main_page.click_top_order_button()
         order_page = OrderPage(driver)
         order_page.wait_for_order_form_to_load()
-        order_page.fill_first_page("Иван", "Иванов", "ул. Пушкина, д. 1", "89998887766")
-        order_page.fill_second_page("Позвонить за час")
+        order_page.fill_first_page(
+            ORDER_DATA_1["name"],
+            ORDER_DATA_1["surname"],
+            ORDER_DATA_1["address"],
+            ORDER_DATA_1["phone"]
+        )
+        order_page.fill_second_page(ORDER_DATA_1["comment"])
         order_page.confirm_order()
         assert order_page.is_order_success_displayed()
 
@@ -28,8 +35,13 @@ class TestOrderTopButtonSecondDataset:
         main_page.click_top_order_button()
         order_page = OrderPage(driver)
         order_page.wait_for_order_form_to_load()
-        order_page.fill_first_page("Мария", "Петрова", "пр. Ленина, д. 10", "89997776655")
-        order_page.fill_second_page("Оставить у двери")
+        order_page.fill_first_page(
+            ORDER_DATA_2["name"],
+            ORDER_DATA_2["surname"],
+            ORDER_DATA_2["address"],
+            ORDER_DATA_2["phone"]
+        )
+        order_page.fill_second_page(ORDER_DATA_2["comment"])
         order_page.confirm_order()
         assert order_page.is_order_success_displayed()
 
@@ -43,8 +55,13 @@ class TestOrderBottomButtonFirstDataset:
         main_page.click_bottom_order_button()
         order_page = OrderPage(driver)
         order_page.wait_for_order_form_to_load()
-        order_page.fill_first_page("Иван", "Иванов", "ул. Пушкина, д. 1", "89998887766")
-        order_page.fill_second_page("Позвонить за час")
+        order_page.fill_first_page(
+            ORDER_DATA_1["name"],
+            ORDER_DATA_1["surname"],
+            ORDER_DATA_1["address"],
+            ORDER_DATA_1["phone"]
+        )
+        order_page.fill_second_page(ORDER_DATA_1["comment"])
         order_page.confirm_order()
         assert order_page.is_order_success_displayed()
 
@@ -58,8 +75,13 @@ class TestOrderBottomButtonSecondDataset:
         main_page.click_bottom_order_button()
         order_page = OrderPage(driver)
         order_page.wait_for_order_form_to_load()
-        order_page.fill_first_page("Мария", "Петрова", "пр. Ленина, д. 10", "89997776655")
-        order_page.fill_second_page("Оставить у двери")
+        order_page.fill_first_page(
+            ORDER_DATA_2["name"],
+            ORDER_DATA_2["surname"],
+            ORDER_DATA_2["address"],
+            ORDER_DATA_2["phone"]
+        )
+        order_page.fill_second_page(ORDER_DATA_2["comment"])
         order_page.confirm_order()
         assert order_page.is_order_success_displayed()
 
@@ -71,7 +93,9 @@ class TestScooterLogo:
         main_page.open()
         main_page.accept_cookies()
         main_page.click_scooter_logo()
-        assert main_page.is_on_main_page()
+        current_url = main_page.get_current_url()
+        expected_url = "https://qa-scooter.praktikum-services.ru/"
+        assert current_url == expected_url
 
 
 class TestYandexLogo:
@@ -86,8 +110,9 @@ class TestYandexLogo:
         windows = main_page.get_window_handles()
         new_window = windows[-1]
         main_page.switch_to_window(new_window)
+        time.sleep(3)
         yandex_page = YandexPage(driver)
-        yandex_page.wait_for_real_page_load()
-        assert yandex_page.is_on_yandex_or_dzen()
+        is_on_dzen = yandex_page.is_on_dzen_page()
         yandex_page.close_current_window()
         main_page.switch_to_window(main_window)
+        assert is_on_dzen

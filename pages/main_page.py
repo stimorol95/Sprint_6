@@ -5,7 +5,7 @@ from config import BASE_URL
 
 class MainPage(BasePage):
     def open(self):
-        self.driver.get(BASE_URL)
+        self.open_url(BASE_URL)
         self.wait_for_element_to_be_visible(MainPageLocators.TOP_ORDER_BUTTON)
     
     def accept_cookies(self):
@@ -14,11 +14,12 @@ class MainPage(BasePage):
     
     def click_question(self, index):
         question_locator = MainPageLocators.question_locator(index)
-        element = self.find_element(question_locator)
-        self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
-        self.driver.execute_script("arguments[0].click();", element)
-        answer_locator = MainPageLocators.answer_locator(index)
-        self.wait_for_element_to_be_visible(answer_locator, timeout=3)
+        self.scroll_to_element(question_locator)
+        self.click_element_with_js(question_locator)
+    
+    def get_question_text(self, index):
+        question_locator = MainPageLocators.question_locator(index)
+        return self.get_element_text(question_locator)
     
     def get_answer_text(self, index):
         answer_locator = MainPageLocators.answer_locator(index)
@@ -43,4 +44,4 @@ class MainPage(BasePage):
     
     def is_on_main_page(self):
         current_url = self.get_current_url()
-        return BASE_URL in current_url
+        return BASE_URL == current_url

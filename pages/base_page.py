@@ -7,6 +7,9 @@ class BasePage:
     def __init__(self, driver):
         self.driver = driver
     
+    def open_url(self, url):
+        self.driver.get(url)
+    
     def find_element(self, locator, timeout=10):
         return WebDriverWait(self.driver, timeout).until(
             EC.presence_of_element_located(locator)
@@ -17,9 +20,18 @@ class BasePage:
             EC.visibility_of_element_located(locator)
         )
     
+    def wait_for_element_to_be_clickable(self, locator, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable(locator)
+        )
+    
     def click_element(self, locator):
         element = self.find_element(locator)
         element.click()
+    
+    def click_element_with_js(self, locator):
+        element = self.find_element(locator)
+        self.driver.execute_script("arguments[0].click();", element)
     
     def send_keys_to_element(self, locator, text):
         element = self.find_element(locator)
@@ -45,7 +57,7 @@ class BasePage:
     
     def wait_for_new_window(self, current_windows, timeout=10):
         return WebDriverWait(self.driver, timeout).until(
-            lambda driver: len(driver.window_handles) > len(current_windows)
+            lambda d: len(d.window_handles) > len(current_windows)
         )
     
     def get_current_window_handle(self):
@@ -71,7 +83,20 @@ class BasePage:
     
     def scroll_to_element(self, locator):
         element = self.find_element(locator)
-        self.driver.execute_script("arguments[0].scrollIntoView();", element)
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", element)
     
     def scroll_to_bottom(self):
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    
+    def wait_for_url_change(self, original_url, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            lambda d: d.current_url != original_url
+        )
+    
+    def wait_for_url_contains(self, text, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            lambda d: text in d.current_url
+        )
+    
+    def execute_script(self, script, *args):
+        return self.driver.execute_script(script, *args)
